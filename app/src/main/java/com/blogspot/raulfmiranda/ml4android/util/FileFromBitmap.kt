@@ -7,22 +7,22 @@ import android.os.Environment
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import android.app.Activity
-import java.lang.ref.WeakReference
 
 
 class FileFromBitmap() : AsyncTask<Void, Void, File>() {
 
-    private var path = Environment.getExternalStorageDirectory().path
-    private val fileName = "pulmao.jpeg"
+    private var path: String? = null
+    private var fileName: String? = null
 //    private var path = Environment.getExternalStorageDirectory().path + "/pulmao.jpg"
 //    private var path = Environment.getExternalStorageDirectory().path + File.separator + "pulmao.jpg"
     private var bitmap: Bitmap? = null
     var delegate: AsyncResponse? = null
 
-    constructor(delegate: AsyncResponse, bitmap: Bitmap) : this() {
+    constructor(delegate: AsyncResponse, bitmap: Bitmap, path: String, fileName: String) : this() {
         this.delegate = delegate
         this.bitmap = bitmap
+        this.path = path
+        this.fileName = fileName
     }
 
     interface AsyncResponse {
@@ -37,19 +37,18 @@ class FileFromBitmap() : AsyncTask<Void, Void, File>() {
     }
 
     override fun doInBackground(vararg p0: Void?): File {
-        val bytes = ByteArrayOutputStream()
+//        val bytes = ByteArrayOutputStream()
 //        val file = File(path)
         val file = File(path, fileName)
-        file.createNewFile()
 
         bitmap?.let {
-            val bos = ByteArrayOutputStream()
-            it.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
-            val bitmapdata = bos.toByteArray()
 
             try {
+                file.createNewFile()
+                val bos = ByteArrayOutputStream()
+                it.compress(Bitmap.CompressFormat.JPEG, 100, bos)
+                val bitmapdata = bos.toByteArray()
                 val fo = FileOutputStream(file)
-//                fo.write(bytes.toByteArray())
                 fo.write(bitmapdata)
                 fo.flush()
                 fo.close()

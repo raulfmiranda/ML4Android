@@ -11,50 +11,32 @@ import android.widget.Toast
 class Permission {
 
     companion object {
-        private val WRITE_EXTERNAL_STORAGE_CODE = 1
+        private val PERMISSION_ALL = 1
+        private val PERMISSIONS = arrayOf(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.INTERNET)
 
+        fun checkPermission(activity: Activity, bitmap: Bitmap, path: String, fileName: String) {
+            var isPermissionGranted = false
 
-        fun askUserPermission(activity: Activity) {
-            ActivityCompat.requestPermissions(activity,
-                    Array<String>(1){ Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    WRITE_EXTERNAL_STORAGE_CODE)
-        }
+            for(P: String in PERMISSIONS) {
+                isPermissionGranted =
+                        ContextCompat.checkSelfPermission(activity, P) == PackageManager.PERMISSION_GRANTED
 
-        fun checkPermission(activity: Activity, bitmap: Bitmap) {
-            if (ContextCompat.checkSelfPermission(activity,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
+                if(!isPermissionGranted) break
+            }
 
-                // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
-                    // Show an expanation to the user *asynchronously* -- don't block
-                    // this thread waiting for the user's response! After the user
-                    // sees the explanation, try again to request the permission.
-
-                    // TODO:Apenas copiei o mesmo que está no ELSE abaixo.
-                    Toast.makeText(activity, "You must accept permission", Toast.LENGTH_LONG).show()
-                    askUserPermission(activity)
-
-                } else {
-
-                    // No explanation needed, we can request the permission.
-
-                    askUserPermission(activity)
-
-                    // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                    // app-defined int constant. The callback method gets the
-                    // result of the request.
-                }
+            if (!isPermissionGranted) {
+                ActivityCompat.requestPermissions(activity, PERMISSIONS, PERMISSION_ALL)
             }
             else {
-                makeFileFromBitmap(activity as FileFromBitmap.AsyncResponse, bitmap)
+                makeFileFromBitmap(activity as FileFromBitmap.AsyncResponse, bitmap, path, fileName)
             }
         }
 
-        private fun makeFileFromBitmap(asyncResponse: FileFromBitmap.AsyncResponse, bitmap: Bitmap) {
-            val fileFromBitmap = FileFromBitmap(asyncResponse, bitmap)
+        private fun makeFileFromBitmap(asyncResponse: FileFromBitmap.AsyncResponse, bitmap: Bitmap, path: String, fileName: String) {
+            val fileFromBitmap = FileFromBitmap(asyncResponse, bitmap, path, fileName)
             fileFromBitmap.execute()
         }
     }

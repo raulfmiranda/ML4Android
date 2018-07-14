@@ -14,3 +14,5 @@ interface CVPredictionService {
             @Part image: MultipartBody.Part
     ): Call<CVPrediction>
 }
+
+
