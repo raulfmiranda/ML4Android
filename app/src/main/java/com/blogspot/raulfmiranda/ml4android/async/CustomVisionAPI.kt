@@ -28,7 +28,8 @@ class CustomVisionAPI {
             try {
                 val headers = HashMap<String, String>()
                 headers.put("Prediction-Key", BuildConfig.PredictionKey)
-                headers.put("Content-Type", "application/octet-stream")
+//                headers.put("Content-Type", "application/octet-stream")
+//                headers.put("Content-Type", "multipart/form-data")
 
 //            var imgReq = RequestBody.create(MediaType.parse("image/*"), image)
 
@@ -37,10 +38,12 @@ class CustomVisionAPI {
                 fis.close()
 
 //                val byteArray = image.readBytes()
-                val imgReq = RequestBody.create(MediaType.parse("image/jpeg"), bytes)
+//                val imgReq = RequestBody.create(MediaType.parse("image/jpeg"), bytes)
+                val imgReq = RequestBody.create(MediaType.parse("application/octet-stream"), bytes)
+//                val imgReq = RequestBody.create(MediaType.parse("image/*"), bytes)
                 val body = MultipartBody.Part.createFormData("upload", image.name, imgReq)
 
-                val call = RetrofitInitializer(baseUrl).cvPredictionService().makePrediction(headers, iterationId, body)
+                val call = RetrofitInitializer(baseUrl).cvPredictionService().makePrediction(headers, iterationId, imgReq)
                 call.enqueue(callback)
 
             } catch (e: Exception) {

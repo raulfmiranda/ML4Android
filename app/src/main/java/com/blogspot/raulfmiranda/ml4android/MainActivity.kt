@@ -1,6 +1,7 @@
 package com.blogspot.raulfmiranda.ml4android
 
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.blogspot.raulfmiranda.ml4android.model.CVPrediction
@@ -20,18 +21,26 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity(), Callback<CVPrediction?>, FileFromBitmap.AsyncResponse {
 
 //    private val imgFilePath: String = Environment.getExternalStorageDirectory().path + File.separator + "pulmao.jpg"
-    private var path = Environment.getExternalStorageDirectory().path
+//    private var path = Environment.getExternalStorageDirectory().path
+    private var path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
     private var fileName = "pulmao.jpeg"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val bitmapNormal = BitmapFactory.decodeResource(resources, R.drawable.normal)
-//        val bitmapVirus = BitmapFactory.decodeResource(resources, R.drawable.virus)
-//        val bitmapBacteria = BitmapFactory.decodeResource(resources, R.drawable.bacteria)
+        val bitmapPerson1virus7 = BitmapFactory.decodeResource(resources, R.drawable.person1_virus_7)
 
-        Permission.checkPermission(this@MainActivity, bitmapNormal, path, fileName)
+        btnSendImg.setOnClickListener {
+            makeFileFromBitmap(this@MainActivity, bitmapPerson1virus7, path, fileName)
+        }
+
+        Permission.checkPermission(this@MainActivity)
+    }
+
+    private fun makeFileFromBitmap(asyncResponse: FileFromBitmap.AsyncResponse, bitmap: Bitmap, path: String, fileName: String) {
+        val fileFromBitmap = FileFromBitmap(asyncResponse, bitmap, path, fileName)
+        fileFromBitmap.execute()
     }
 
     override fun fileFromBitmapFinished(file: File?) {
