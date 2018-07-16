@@ -1,9 +1,7 @@
 package com.blogspot.raulfmiranda.ml4android.util
 
-import android.content.Context
 import android.os.AsyncTask
 import android.graphics.Bitmap
-import android.os.Environment
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -13,8 +11,6 @@ class FileFromBitmap() : AsyncTask<Void, Void, File>() {
 
     private var path: String? = null
     private var fileName: String? = null
-//    private var path = Environment.getExternalStorageDirectory().path + "/pulmao.jpg"
-//    private var path = Environment.getExternalStorageDirectory().path + File.separator + "pulmao.jpg"
     private var bitmap: Bitmap? = null
     var delegate: AsyncResponse? = null
 
@@ -37,8 +33,7 @@ class FileFromBitmap() : AsyncTask<Void, Void, File>() {
     }
 
     override fun doInBackground(vararg p0: Void?): File {
-//        val bytes = ByteArrayOutputStream()
-//        val file = File(path)
+
         val file = File(path, fileName)
 
         bitmap?.let {

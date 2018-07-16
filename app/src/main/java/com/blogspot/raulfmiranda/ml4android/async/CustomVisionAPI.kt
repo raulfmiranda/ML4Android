@@ -4,15 +4,10 @@ import android.util.Log
 import com.blogspot.raulfmiranda.ml4android.BuildConfig
 import com.blogspot.raulfmiranda.ml4android.model.CVPrediction
 import okhttp3.MediaType
-import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Callback
 import java.io.File
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.FileReader
 
 
 class CustomVisionAPI {
@@ -27,21 +22,13 @@ class CustomVisionAPI {
 
             try {
                 val headers = HashMap<String, String>()
-                headers.put("Prediction-Key", BuildConfig.PredictionKey)
-//                headers.put("Content-Type", "application/octet-stream")
-//                headers.put("Content-Type", "multipart/form-data")
-
-//            var imgReq = RequestBody.create(MediaType.parse("image/*"), image)
+                headers.put("Prediction-Key", predictionKey)
 
                 val fis = FileInputStream(image)
                 val bytes = fis.readBytes()
                 fis.close()
 
-//                val byteArray = image.readBytes()
-//                val imgReq = RequestBody.create(MediaType.parse("image/jpeg"), bytes)
                 val imgReq = RequestBody.create(MediaType.parse("application/octet-stream"), bytes)
-//                val imgReq = RequestBody.create(MediaType.parse("image/*"), bytes)
-                val body = MultipartBody.Part.createFormData("upload", image.name, imgReq)
 
                 val call = RetrofitInitializer(baseUrl).cvPredictionService().makePrediction(headers, iterationId, imgReq)
                 call.enqueue(callback)

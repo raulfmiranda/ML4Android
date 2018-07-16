@@ -9,6 +9,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Environment
 import android.widget.Toast
 import com.blogspot.raulfmiranda.ml4android.util.FileFromBitmap
@@ -20,25 +22,47 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), Callback<CVPrediction?>, FileFromBitmap.AsyncResponse {
 
-//    private val imgFilePath: String = Environment.getExternalStorageDirectory().path + File.separator + "pulmao.jpg"
-//    private var path = Environment.getExternalStorageDirectory().path
-    private var path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
-    private var fileName = "pulmao.jpeg"
+
+    private var chosenImgFile: File? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val bitmapPerson1virus7 = BitmapFactory.decodeResource(resources, R.drawable.person1_virus_7)
+        btnMakeOnlinePrediction.isEnabled = false
+        btnMakeOnlinePrediction.setOnClickListener {
 
-        btnSendImg.setOnClickListener {
-            makeFileFromBitmap(this@MainActivity, bitmapPerson1virus7, path, fileName)
+            txtPrediction.text = "Sending image to the server. Please, wait!"
+            txtPrediction.background = ColorDrawable(Color.RED)
+            txtPrediction.setTextColor(Color.WHITE)
+
+            this.chosenImgFile?.let {
+                CustomVisionAPI.makePrediction(this@MainActivity, it)
+            }
         }
 
-        Permission.checkPermission(this@MainActivity)
+        btnChooseImg1.setOnClickListener {
+            this.chosenImgFile?.let {
+                if(it.exists()) {
+                    val bitmap = BitmapFactory.decodeFile(it.absolutePath)
+                    imgLoaded.setImageBitmap(bitmap)
+                    btnMakeOnlinePrediction.isEnabled = true
+                }
+            }
+        }
+
+        val isPermissionGranted = Permission.checkPermission(this@MainActivity)
+        if(isPermissionGranted) {
+            makeFileFromBitmap1(this@MainActivity)
+        } else {
+            Permission.requestPermissions(this@MainActivity)
+        }
     }
 
-    private fun makeFileFromBitmap(asyncResponse: FileFromBitmap.AsyncResponse, bitmap: Bitmap, path: String, fileName: String) {
+    private fun makeFileFromBitmap1(asyncResponse: FileFromBitmap.AsyncResponse) {
+        val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
+        val fileName = "person1_virus_7.jpeg"
+        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.person1_virus_7)
         val fileFromBitmap = FileFromBitmap(asyncResponse, bitmap, path, fileName)
         fileFromBitmap.execute()
     }
@@ -46,25 +70,33 @@ class MainActivity : AppCompatActivity(), Callback<CVPrediction?>, FileFromBitma
     override fun fileFromBitmapFinished(file: File?) {
 
         file?.let {
-            CustomVisionAPI.makePrediction(this@MainActivity, it)
-
-
-//            val intent = Intent(Intent.ACTION_VIEW)
-//            val uri = Uri.fromFile(it)
-//            intent.setDataAndType(uri, "image/jpeg")
-//            startActivity(intent)
+            this.chosenImgFile = it
+            btnChooseImg1.text = it.name
         }
     }
 
+    // Custom Vison API onFailure
     override fun onFailure(call: Call<CVPrediction?>?, t: Throwable?) {
         val erroMsg = t?.message.toString()
         txtPrediction.text = erroMsg
     }
 
+    // Custom Vison API onResponse
     override fun onResponse(call: Call<CVPrediction?>?, response: Response<CVPrediction?>?) {
         response?.body()?.let {
             if(it.predictions.size > 0) {
-                val pred = "${it.predictions[0].tagName}: ${it.predictions[0].probability}"
+                var pred = ""
+                val probX100 = it.predictions[0].probability * 100
+                val prob = "%.1f".format(probX100)
+                when (it.predictions[0].tagName) {
+                    "pneumonia" -> pred = "$prob% chance of being pneumonia."
+                    "normal" -> pred = "$prob% chance of not being pneumonia (normal)."
+                    "bacteria" -> pred = "$prob% chance of being pneumonia cause by bacteria."
+                    "virus" -> pred = "$prob% chance of being pneumonia cause by virus."
+                }
+
+                btnMakeOnlinePrediction.isEnabled = true
+                txtPrediction.background = ColorDrawable(Color.BLUE)
                 txtPrediction.text = pred
             }
         }
@@ -76,6 +108,9 @@ class MainActivity : AppCompatActivity(), Callback<CVPrediction?>, FileFromBitma
             PERMISSION_ALL -> {
                 if(grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this@MainActivity, "Permission Granted!", Toast.LENGTH_SHORT).show()
+
+                    makeFileFromBitmap1(this@MainActivity)
+
                 } else {
                     Toast.makeText(this@MainActivity, "Permission Denied!", Toast.LENGTH_SHORT).show()
                 }

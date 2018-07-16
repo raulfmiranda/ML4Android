@@ -17,7 +17,7 @@ class Permission {
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.INTERNET)
 
-        fun checkPermission(activity: Activity) { //, bitmap: Bitmap, path: String, fileName: String) {
+        fun checkPermission(activity: Activity): Boolean {
             var isPermissionGranted = false
 
             for(P: String in PERMISSIONS) {
@@ -27,18 +27,12 @@ class Permission {
                 if(!isPermissionGranted) break
             }
 
-            if (!isPermissionGranted) {
-                ActivityCompat.requestPermissions(activity, PERMISSIONS, PERMISSION_ALL)
-            }
-//            else {
-//                makeFileFromBitmap(activity as FileFromBitmap.AsyncResponse, bitmap, path, fileName)
-//            }
+            return isPermissionGranted
         }
 
-//        private fun makeFileFromBitmap(asyncResponse: FileFromBitmap.AsyncResponse, bitmap: Bitmap, path: String, fileName: String) {
-//            val fileFromBitmap = FileFromBitmap(asyncResponse, bitmap, path, fileName)
-//            fileFromBitmap.execute()
-//        }
+        fun requestPermissions(activity: Activity) {
+            ActivityCompat.requestPermissions(activity, PERMISSIONS, PERMISSION_ALL)
+        }
     }
 }
 
