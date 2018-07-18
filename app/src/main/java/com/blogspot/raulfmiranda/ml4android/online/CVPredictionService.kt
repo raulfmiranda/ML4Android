@@ -1,7 +1,6 @@
-package com.blogspot.raulfmiranda.ml4android.async
+package com.blogspot.raulfmiranda.ml4android.online
 
 import com.blogspot.raulfmiranda.ml4android.model.CVPrediction
-import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.*

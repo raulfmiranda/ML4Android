@@ -1,4 +1,4 @@
-package com.blogspot.raulfmiranda.ml4android.async
+package com.blogspot.raulfmiranda.ml4android.online
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

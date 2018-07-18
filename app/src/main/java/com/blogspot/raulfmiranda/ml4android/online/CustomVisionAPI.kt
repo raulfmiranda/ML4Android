@@ -1,4 +1,4 @@
-package com.blogspot.raulfmiranda.ml4android.async
+package com.blogspot.raulfmiranda.ml4android.online
 
 import android.util.Log
 import com.blogspot.raulfmiranda.ml4android.BuildConfig

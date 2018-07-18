@@ -1,7 +1,7 @@
 package com.blogspot.raulfmiranda.ml4android
 
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.blogspot.raulfmiranda.ml4android.model.CVPrediction
@@ -15,19 +15,19 @@ import android.os.Environment
 import android.widget.Toast
 import com.blogspot.raulfmiranda.ml4android.util.FileFromBitmap
 import java.io.File
-import com.blogspot.raulfmiranda.ml4android.async.CustomVisionAPI
+import com.blogspot.raulfmiranda.ml4android.online.CustomVisionAPI
 import com.blogspot.raulfmiranda.ml4android.util.Permission
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_online.*
 
 
-class MainActivity : AppCompatActivity(), Callback<CVPrediction?>, FileFromBitmap.AsyncResponse {
+class OnlineActivity : AppCompatActivity(), Callback<CVPrediction?>, FileFromBitmap.AsyncResponse {
 
 
     private var chosenImgFile: File? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_online)
 
         btnMakeOnlinePrediction.isEnabled = false
         btnMakeOnlinePrediction.setOnClickListener {
@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity(), Callback<CVPrediction?>, FileFromBitma
             txtPrediction.setTextColor(Color.WHITE)
 
             this.chosenImgFile?.let {
-                CustomVisionAPI.makePrediction(this@MainActivity, it)
+                CustomVisionAPI.makePrediction(this@OnlineActivity, it)
             }
         }
 
@@ -51,11 +51,16 @@ class MainActivity : AppCompatActivity(), Callback<CVPrediction?>, FileFromBitma
             }
         }
 
-        val isPermissionGranted = Permission.checkPermission(this@MainActivity)
+        val isPermissionGranted = Permission.checkPermission(this@OnlineActivity)
         if(isPermissionGranted) {
-            makeFileFromBitmap1(this@MainActivity)
+            makeFileFromBitmap1(this@OnlineActivity)
         } else {
-            Permission.requestPermissions(this@MainActivity)
+            Permission.requestPermissions(this@OnlineActivity)
+        }
+
+        btnGoOfflineActivity.setOnClickListener {
+            var intent = Intent(this, OfflineActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -107,12 +112,12 @@ class MainActivity : AppCompatActivity(), Callback<CVPrediction?>, FileFromBitma
         when(requestCode) {
             PERMISSION_ALL -> {
                 if(grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this@MainActivity, "Permission Granted!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@OnlineActivity, "Permission Granted!", Toast.LENGTH_SHORT).show()
 
-                    makeFileFromBitmap1(this@MainActivity)
+                    makeFileFromBitmap1(this@OnlineActivity)
 
                 } else {
-                    Toast.makeText(this@MainActivity, "Permission Denied!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@OnlineActivity, "Permission Denied!", Toast.LENGTH_SHORT).show()
                 }
             }
         }
